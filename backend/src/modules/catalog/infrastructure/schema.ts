@@ -61,9 +61,19 @@ async function prepareCopies(): Promise<void> {
   });
 }
 
-/** Prepara as tabelas do Acervo: livros, a migração de UC01 e os exemplares de UC13, nesta ordem. */
+/**
+ * UC24: o pgvector é instalado por banco, então cada banco (o da aplicação e o
+ * dos testes) cria a extensão aqui. A tabela dos vetores não nasce no prepare:
+ * a dimensão dela vem do embedder (veja bookVectors.ts).
+ */
+async function createVectorExtension(): Promise<void> {
+  await sql`CREATE EXTENSION IF NOT EXISTS vector`;
+}
+
+/** Prepara as tabelas do Acervo: livros, a migração de UC01, os exemplares de UC13 e a extensão de UC24, nesta ordem. */
 export async function prepareCatalog(): Promise<void> {
   await createBooksTable();
   await dropBookCopyRequirement();
   await prepareCopies();
+  await createVectorExtension();
 }
